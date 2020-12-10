@@ -14,7 +14,7 @@ class CreateBankAccountTable extends Migration
     public function up()
     {
         Schema::create('bank_account', function (Blueprint $table) {
-            $table->id();
+            $table->foreign('user_acc_id')->references('id')->on('users');
             $table->string('user');
             $table->integer('amount');
             $table->string('currency');
