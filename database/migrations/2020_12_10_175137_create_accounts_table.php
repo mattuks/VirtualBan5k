@@ -4,7 +4,10 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBankAccountsTable extends Migration
+/**
+ * Class CreateAccountsTable
+ */
+class CreateAccountsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +16,13 @@ class CreateBankAccountsTable extends Migration
      */
     public function up()
     {
-        Schema::create('bank_accounts', function (Blueprint $table) {
-            $table->id();
+        Schema::create('accounts', function (Blueprint $table) {
+            $table->unsignedBigInteger('user_id');
+            $table->string('name');
             $table->integer('amount');
             $table->string('currency');
-            $table->enum('membership_type', config('membership_type'));
             $table->timestamps();
-            $table->foreignId('user_id')->references('id')->on('users');
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 
