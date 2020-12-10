@@ -18,7 +18,7 @@ class CreateBankAccountTable extends Migration
             $table->string('user');
             $table->integer('amount');
             $table->string('currency');
-            $table->string('membership-status');
+            $table->enum('membership_type', config('membership_type'));
             $table->timestamps();
         });
     }
