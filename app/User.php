@@ -49,4 +49,53 @@ class User extends Authenticatable
     {
         return $this->hasMany(Account::class);
     }
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->getAttribute('id');
+    }
+
+    /**
+     * @return stirng
+     */
+    public function getName(): stirng
+    {
+        return $this->getAttribute('name');
+    }
+
+    /**
+     * @param string $name
+     * @return $this
+     */
+    public function setName(string $name): self
+    {
+        $this->setAttribute('name', $name);
+
+        return $this;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getEmail(): string
+    {
+        return $this->getAttribute('email');
+    }
+
+    /**
+     * @param string $email
+     * @return $this
+     */
+    public function setEmail(string $email): self
+    {
+        $this->setAttribute('email', $email);
+
+        return $this;
+    }
+
+
 }
