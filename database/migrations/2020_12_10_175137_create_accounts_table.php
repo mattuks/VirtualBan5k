@@ -19,9 +19,10 @@ class CreateAccountsTable extends Migration
         Schema::create('accounts', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->string('name');
             $table->integer('amount')->default(0);
             $table->string('currency');
+            $table->string('name');
+            $table->uuid('uuid');
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
@@ -34,6 +35,6 @@ class CreateAccountsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bank_account');
+        Schema::dropIfExists('accounts');
     }
 }
