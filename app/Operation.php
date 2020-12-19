@@ -4,6 +4,7 @@ namespace App;
 
 use App\Enums\OperationType;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class Operation
@@ -11,6 +12,13 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Operation extends Model
 {
+    /**
+     * @return BelongsTo
+     */
+    public function account(): BelongsTo
+    {
+        return $this->belongsTo(Account::class);
+    }
 
     /**
      * @return int

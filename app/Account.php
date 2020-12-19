@@ -5,6 +5,7 @@ namespace App;
 use Cknow\Money\Money;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Money\Currency;
 
 /**
@@ -13,6 +14,21 @@ use Money\Currency;
  */
 class Account extends Model
 {
+    /**
+     * @return HasMany
+     */
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function operations(): HasMany
+    {
+        return $this->hasMany(Operation::class);
+    }
     /**
      * @return BelongsTo
      */

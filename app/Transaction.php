@@ -7,6 +7,7 @@ use App\Enums\TransactionStatus;
 use App\Enums\TransactionType;
 use Cknow\Money\Money;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Money\Currency;
 
 /**
@@ -15,6 +16,13 @@ use Money\Currency;
  */
 class Transaction extends Model
 {
+    /**
+     * @return BelongsTo
+     */
+    public function account(): BelongsTo
+    {
+        return $this->belongsTo(Account::class);
+    }
     /**
      * @return int
      */
@@ -162,7 +170,7 @@ class Transaction extends Model
      */
     public function getAmount(): Money
     {
-        return new Money($this->getAttribute('amount'), new Currency($this->getCurrency()));
+        return new Money($this->getAttribute('amount'), new Currency($this->getCurrency()->getCode()));
     }
 
     /**

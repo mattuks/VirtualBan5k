@@ -10,9 +10,8 @@ use BenSampo\Enum\Enum;
  */
 final class TransactionStatus extends Enum
 {
-    const SENT = 1;
-    const PENDING = 2;
-    const RECEIVED = 3;
-    const FAILED = 4;
+    const PENDING = 1;
+    const SENT = 2;
+    const FAILED = 3;
 
 }
