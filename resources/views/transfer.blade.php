@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('content')
-        @include('inc.overview')
+    @include('inc.send')
 @endsection

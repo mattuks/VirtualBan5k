@@ -17,7 +17,8 @@
         "laravel/framework": "^7.29",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^2.5",
-        "ext-mysql_xdevapi": "*"
+        "ext-mysql_xdevapi": "*",
+      "ext-http": "*"
     },
     "require-dev": {
         "facade/ignition": "^2.0",

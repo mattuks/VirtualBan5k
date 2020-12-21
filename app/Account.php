@@ -14,6 +14,7 @@ use Money\Currency;
  */
 class Account extends Model
 {
+
     /**
      * @return HasMany
      */

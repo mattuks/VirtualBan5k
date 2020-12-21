@@ -20,4 +20,5 @@ use Illuminate\Support\Facades\Route;
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
-
+Route::get('/open', 'AccountController@index')->name('transfer');
+Route::post('/open/account', 'AccountController@store')->name('open-account');

@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use App\Account;
+use App\User;
 class HomeController extends Controller
 {
     /**
@@ -19,10 +20,13 @@ class HomeController extends Controller
     /**
      * Show the application dashboard.
      *
+     * @param User $user
      * @return \Illuminate\Contracts\Support\Renderable
      */
     public function index()
     {
-        return view('home');
+        $account = Account::findOrFail(auth()->id());
+        return view('home')->with('account', $account);
     }
+
 }

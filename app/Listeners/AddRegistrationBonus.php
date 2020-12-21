@@ -10,6 +10,7 @@ use App\Events\AccountCreated;
 use App\Services\AccountService;
 use App\Services\OperationService;
 use App\Services\TransactionService;
+use Cknow\Money\Money;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -64,9 +65,10 @@ class AddRegistrationBonus
                     'status' => new TransactionStatus(TransactionStatus::PENDING),
                     'type' => new TransactionType(TransactionType::BONUS),
                     'direction' => new TransactionDirectionType(TransactionDirectionType::IN),
-                    'amount' => 54646,
+                    'amount' => new Money(100000, $event->account->getCurrency()),
                 ]);
                 $event->account->setAmount($transaction->getAmount())->save();
+                $this->transactionService->changeStatusAndSave($transaction, new TransactionStatus(TransactionStatus::SENT));
                 $this->accountService->addAmountAndSave($event->account, $transaction->getAmount());
             } catch (\TypeError $typeError) {
                 DB::rollBack();
