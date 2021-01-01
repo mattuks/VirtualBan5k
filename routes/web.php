@@ -20,5 +20,10 @@ use Illuminate\Support\Facades\Route;
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
-Route::get('/open', 'AccountController@index')->name('transfer');
-Route::post('/open/account', 'AccountController@store')->name('open-account');
+Route::get('/transactions', 'TransactionController@index')->name('all-transactions');
+Route::get('/transactions/{id}', 'TransactionController@show')->name('account-transactions');
+Route::get('/transaction/{id}', 'TransactionController@create')->name('transaction-create');
+Route::post('/transaction', 'TransactionController@store')->name('transaction-store');
+Route::get('/account', 'AccountController@index');
+Route::get('/account/create', 'AccountController@create')->name('account-create');
+Route::post('/account/store', 'AccountController@store')->name('account-store');

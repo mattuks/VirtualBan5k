@@ -4608,14 +4608,6 @@ readers do not read off random characters that represent icons */
   font-weight: 900; }
 @charset "UTF-8";
 
-.dot {
-  height: 75px;
-  width: 75px;
-  background-color: #3490dc;
-  border-radius: 50%;
-  display: inline-block;
-}
-
 /*!
  * Bootstrap v4.5.3 (https://getbootstrap.com/)
  * Copyright 2011-2020 The Bootstrap Authors

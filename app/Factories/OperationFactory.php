@@ -19,7 +19,11 @@ class OperationFactory
     public static function create(array $data): Operation
     {
         $operation = new Operation();
-        $operation->setType($data['type']);
+        $operation->setSenderUUID($data['sender_uuid']);
+        $operation->setReceiverUUID($data['receiver_uuid']);
+        $operation->setAmount($data['amount']);
+        $operation->setCurrency($data['currency']);
+        $operation->setStatus($data['status']);
 
         return $operation;
     }

@@ -19,6 +19,13 @@ class Transaction extends Model
     /**
      * @return BelongsTo
      */
+    public function operation(): BelongsTo
+    {
+        return $this->belongsTo(Operation::class);
+    }
+    /**
+     * @return BelongsTo
+     */
     public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class);
@@ -112,7 +119,7 @@ class Transaction extends Model
      */
     public function getStatus(): TransactionStatus
     {
-        return TransactionStatus::coerce($this->getAttribute('status'));
+        return TransactionStatus::coerce( (int) $this->getAttribute('status'));
     }
 
     /**
@@ -132,7 +139,7 @@ class Transaction extends Model
      */
     public function getType(): TransactionType
     {
-        return TransactionType::coerce($this->getAttribute('type'));
+        return TransactionType::coerce((int)$this->getAttribute('type'));
     }
 
     /**
@@ -151,7 +158,7 @@ class Transaction extends Model
      */
     public function getDirection(): TransactionDirectionType
     {
-        return TransactionDirectionType::coerce($this->getAttribute('direction'));
+        return TransactionDirectionType::coerce((int)$this->getAttribute('direction'));
     }
 
     /**

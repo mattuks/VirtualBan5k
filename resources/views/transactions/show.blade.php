@@ -1,4 +1,4 @@
 @extends('layouts.app')
 @section('content')
-    @include('inc.send')
+    @include('inc.transaction-table')
 @endsection

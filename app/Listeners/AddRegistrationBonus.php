@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Enums\OperationType;
+use App\Enums\OperationStatus;
 use App\Enums\TransactionDirectionType;
 use App\Enums\TransactionStatus;
 use App\Enums\TransactionType;
@@ -46,7 +46,7 @@ class AddRegistrationBonus
 
     /**
      * @param AccountCreated $event
-     * @return \Illuminate\Http\RedirectResponse
+     * @return void
      */
     public function handle(AccountCreated $event)
     {
@@ -55,7 +55,11 @@ class AddRegistrationBonus
             try {
                 $event->account->save();
                 $operation = $this->operationService->createAndSave([
-                    'type' => new OperationType(OperationType::PENDING),
+                    'sender_uuid' => 'admin',
+                    'receiver_uuid' => $event->account->getUUID(),
+                    'amount' => new Money(100000, $event->account->getCurrency()),
+                    'status' => new OperationStatus(OperationStatus::PENDING),
+                    'currency' => $event->account->getCurrency(),
                 ]);
                 $transaction = $this->transactionService->createAndSave([
                     'user_id' => $event->account->getUserId(),

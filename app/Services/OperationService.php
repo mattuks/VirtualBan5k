@@ -3,6 +3,7 @@
 
 namespace App\Services;
 
+use App\Enums\OperationStatus;
 use App\Factories\OperationFactory;
 use App\Operation;
 
@@ -29,6 +30,18 @@ class OperationService
     {
         $operation = OperationFactory::create($data);
         $operation->save();
+
+        return $operation;
+    }
+
+    /**
+     * @param Operation $operation
+     * @param OperationStatus $operationStatus
+     * @return bool
+     */
+    public function changeStatusAndSave(Operation $operation, OperationStatus $operationStatus)
+    {
+        $operation = $operation->setStatus($operationStatus)->save();
 
         return $operation;
     }

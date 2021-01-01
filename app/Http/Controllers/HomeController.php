@@ -25,8 +25,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $account = Account::findOrFail(auth()->id());
-        return view('home')->with('account', $account);
+        return view('home', ['accounts' => Account::all()->where('user_id', auth()->id())]);
     }
 
 }

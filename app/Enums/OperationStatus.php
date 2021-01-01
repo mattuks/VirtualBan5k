@@ -5,10 +5,10 @@ namespace App\Enums;
 use BenSampo\Enum\Enum;
 
 /**
- * Class OperationType
+ * Class OperationStatus
  * @package App\Enums
  */
-final class OperationType extends Enum
+final class OperationStatus extends Enum
 {
     const PENDING = 1;
     const FAILED = 2;

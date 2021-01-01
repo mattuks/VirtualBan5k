@@ -12,6 +12,7 @@ final class TransactionStatus extends Enum
 {
     const PENDING = 1;
     const SENT = 2;
-    const FAILED = 3;
+    const RECEIVED = 3;
+    const FAILED = 4;
 
 }

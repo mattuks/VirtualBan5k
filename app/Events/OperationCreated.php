@@ -2,33 +2,31 @@
 
 namespace App\Events;
 
-use App\Account;
+use App\Operation;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-/**
- * Class AccountCreated
- * @package App\Events
- */
-class AccountCreated
+class OperationCreated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * @var Account
-     */
-    public $account;
 
     /**
-     * AccountCreated constructor.
-     * @param Account $account
+     * @var Operation
      */
-    public function __construct(Account $account)
+    public $operation;
+
+    /**
+     * Create a new event instance.
+     *
+     * @param Operation $operation
+     */
+    public function __construct(Operation $operation)
     {
-        $this->account = $account;
+        $this->operation = $operation;
     }
 
     /**
