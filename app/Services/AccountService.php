@@ -12,7 +12,7 @@ use Cknow\Money\Money;
  * Class AccountService
  * @package App\Services
  */
-class AccountService
+class AccountService extends ConversationService
 {
     /**
      * @param array $data
@@ -37,14 +37,42 @@ class AccountService
 
     /**
      * @param Account $account
-     * @param $amount
+     * @param Money $amount
      * @return Account
      */
     public function addAmountAndSave(Account $account, Money $amount): Account
     {
         $account->setAmount($amount)->save();
-
         return $account;
     }
 
+    /**
+     * @param Account $account
+     * @param Money $money
+     */
+    public function addToAmount(Account $account, Money $money)
+    {
+        return $this->addAmountAndSave($account,$account->getAmount()->add($money));
+    }
+
+    /**
+     * @param Account $account
+     * @param Money $money
+     */
+    public function subtractFromAmount(Account $account, Money $money)
+    {
+        $this->addAmountAndSave($account, $account->getAmount()->subtract($money));
+    }
+
+    /**
+     * @param Account $account
+     * @param Money $money
+     */
+    public function addAmountAndConvert(Account $account, Money $money){
+        if ($account->getAmount()->isSameCurrency($money)){
+            $this->addToAmount($account,$money);
+        }else{
+            $this->addToAmount($account, $this->convertMoney($money, $account->getCurrency()));
+        }
+    }
 }

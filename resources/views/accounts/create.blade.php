@@ -16,6 +16,7 @@
                 </select>
             </div>
             <button class="btn btn-primary btn-block">Create Account</button>
+            <a href="{{route('home')}}" class="btn btn-danger btn-block">Cancel</a>
         </form>
     </div>
 </div>

@@ -6,9 +6,11 @@ use App\Account;
 use App\Enums\TransactionDirectionType;
 use App\Enums\TransactionStatus;
 use App\Enums\TransactionType;
+use App\Factories\TransactionFactory;
 use App\Services\AccountService;
+use App\Services\ConversationService;
+use App\Services\OperationService;
 use App\Services\TransactionService;
-use App\Transaction;
 use Illuminate\Support\Facades\DB;
 
 class CreateTransactions
@@ -21,17 +23,29 @@ class CreateTransactions
      * @var TransactionService
      */
     private $transactionService;
+    /**
+     * @var ConversationService
+     */
+    private $conversationService;
+    /**
+     * @var OperationService
+     */
+    private $operationService;
 
     /**
      * Create the event listener.
      *
+     * @param OperationService $operationService
+     * @param ConversationService $conversationService
      * @param AccountService $accountService
      * @param TransactionService $transactionService
      */
-    public function __construct(AccountService $accountService, TransactionService $transactionService)
+    public function __construct(OperationService $operationService, ConversationService $conversationService,AccountService $accountService, TransactionService $transactionService)
     {
         $this->accountService = $accountService;
         $this->transactionService = $transactionService;
+        $this->conversationService = $conversationService;
+        $this->operationService = $operationService;
     }
 
     /**
@@ -41,37 +55,48 @@ class CreateTransactions
     {
         DB::transaction(function () use ($event) {
             try {
-                $event->operation->save();
-                $accounts = [
-                    'sender' => Account::where('uuid', $event->operation->getSenderUUID())->first(),
-                    'receiver' => Account::where('uuid', $event->operation->getReceiverUUID())->first(),
-                ];
-
-                foreach ($accounts as $accountType => $account) {
-                    $transaction = new Transaction();
-                    $transaction->setUserId($account->getUserId());
-                    $transaction->setOperationId($event->operation->getId());
-                    $transaction->setAccountId($account->getId());
-                    $transaction->setCurrency($event->operation->getCurrency());
-                    if ($accountType == 'sender') {
-                        $transaction->setStatus(new TransactionStatus(TransactionStatus::PENDING));
-                        $transaction->setType(new TransactionType(TransactionType::TRANSFER));
-                        $transaction->setDirection(new TransactionDirectionType(TransactionDirectionType::OUT));
-                        $transaction->setAmount($event->operation->getAmount()->negative());
-                    } elseif ($accountType == 'receiver') {
-                        $transaction->setStatus(new TransactionStatus(TransactionStatus::PENDING));
-                        $transaction->setType(new TransactionType(TransactionType::TRANSFER));
-                        $transaction->setDirection(new TransactionDirectionType(TransactionDirectionType::IN));
-                        $transaction->setAmount($event->operation->getAmount());
-                    }
-                    $transaction->save();
-                };
-
-
+                $this->createOutTransaction(Account::where('uuid', $event->operation->getSenderUUID())->first(), $event);
+                $this->createInTransaction(Account::where('uuid', $event->operation->getReceiverUUID())->first(), $event);
             } catch (\TypeError $typeError) {
                 DB::rollBack();
                 logger($typeError->getMessage());
             }
         });
+    }
+
+    /**
+     * @param $account
+     * @param $event
+     */
+    public function createInTransaction($account, $event)
+    {
+        TransactionFactory::create([
+            'user_id' => $account->getUserId(),
+            'operation_id' => $event->operation->getId(),
+            'account_id' => $account->getId(),
+            'currency' => $account->getCurrency(),
+            'status' => new TransactionStatus(TransactionStatus::PENDING),
+            'type' => new TransactionType(TransactionType::TRANSFER),
+            'direction' => new TransactionDirectionType(TransactionDirectionType::IN),
+            'amount' => $this->conversationService->convertMoney($event->operation->getAmount(), $account->getCurrency())
+        ])->save();
+    }
+
+    /**
+     * @param $account
+     * @param $event
+     */
+    public function createOutTransaction($account, $event)
+    {
+        TransactionFactory::create([
+            'user_id' => $account->getUserId(),
+            'operation_id' => $event->operation->getId(),
+            'account_id' => $account->getId(),
+            'currency' => $event->operation->getCurrency(),
+            'status' => new TransactionStatus(TransactionStatus::PENDING),
+            'type' => new TransactionType(TransactionType::TRANSFER),
+            'direction' => new TransactionDirectionType(TransactionDirectionType::OUT),
+            'amount' => $event->operation->getAmount()->negative()
+        ])->save();
     }
 }

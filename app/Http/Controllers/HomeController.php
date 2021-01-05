@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Account;
-use App\User;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\View\View;
+
 class HomeController extends Controller
 {
     /**
@@ -18,10 +20,7 @@ class HomeController extends Controller
     }
 
     /**
-     * Show the application dashboard.
-     *
-     * @param User $user
-     * @return \Illuminate\Contracts\Support\Renderable
+     * @return Application|Factory|View
      */
     public function index()
     {

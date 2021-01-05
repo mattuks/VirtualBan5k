@@ -34,23 +34,7 @@ class UpdateAccountsAmounts
      */
     public function handle($event)
     {
-        $accounts = [
-            'sender' => Account::where('uuid', $event->operation->getSenderUUID())->first(),
-            'receiver' => Account::where('uuid', $event->operation->getReceiverUUID())->first(),
-        ];
-
-        foreach ($accounts as $accountType => $account){
-            if ($accountType == 'sender'){
-                $this->accountService->addAmountAndSave($account, $account->getAmount()->subtract($event->operation->getAmount()));
-            }elseif ($accountType == 'receiver'){
-                if ($account->getAmount()->isSameCurrency($event->operation->getAmount())){
-                    $this->accountService->addAmountAndSave($account,$account->getAmount()->add($event->operation->getAmount()));
-                }else{
-                   $converted = $this->conversationService->convert($event->operation->getAmount(), $account->getAmount());
-                    $this->accountService->addAmountAndSave($account,$account->getAmount()->add($converted));
-                }
-
-            }
-        }
+            $this->accountService->subtractFromAmount(Account::where('uuid', $event->operation->getSenderUUID())->first(), $event->operation->getAmount());
+            $this->accountService->addAmountAndConvert(Account::where('uuid', $event->operation->getReceiverUUID())->first(), $event->operation->getAmount());
     }
 }

@@ -24,11 +24,11 @@ class Account extends Model
     }
 
     /**
-     * @return HasMany
+     * @return BelongsTo
      */
-    public function operations(): HasMany
+    public function operation(): BelongsTo
     {
-        return $this->hasMany(Operation::class);
+        return $this->belongsTo(Operation::class);
     }
     /**
      * @return BelongsTo

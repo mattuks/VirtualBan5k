@@ -53,7 +53,8 @@ class AccountController extends Controller
             'name' => $request['currency'].' Account',
         ]);
         $account->save();
-        return redirect()->back();
+
+        return redirect('/home');
     }
 
 

@@ -61,6 +61,7 @@ class AddRegistrationBonus
                     'status' => new OperationStatus(OperationStatus::PENDING),
                     'currency' => $event->account->getCurrency(),
                 ]);
+
                 $transaction = $this->transactionService->createAndSave([
                     'user_id' => $event->account->getUserId(),
                     'operation_id' => $operation->getId(),
@@ -71,9 +72,12 @@ class AddRegistrationBonus
                     'direction' => new TransactionDirectionType(TransactionDirectionType::IN),
                     'amount' => new Money(100000, $event->account->getCurrency()),
                 ]);
-                $event->account->setAmount($transaction->getAmount())->save();
+
                 $this->transactionService->changeStatusAndSave($transaction, new TransactionStatus(TransactionStatus::SENT));
+
                 $this->accountService->addAmountAndSave($event->account, $transaction->getAmount());
+
+                return back()->with('bonus', 'We added a bonus of 1000EUR for joining us!');
             } catch (\TypeError $typeError) {
                 DB::rollBack();
                 logger($typeError->getMessage());

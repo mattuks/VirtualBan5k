@@ -16,11 +16,11 @@ use Money\Currency;
 class Operation extends Model
 {
     /**
-     * @return BelongsTo
+     * @return HasMany
      */
-    public function account(): BelongsTo
+    public function accounts(): HasMany
     {
-        return $this->belongsTo(Account::class);
+        return $this->hasMany(Account::class);
     }
 
     /**

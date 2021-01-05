@@ -45,6 +45,21 @@ class TransactionService
 
         return $transaction;
     }
+
+    /**
+     * @param $transactions
+     */
+    public function setTransactionsStatusesToSuccess($transactions): void
+    {
+        foreach ($transactions as $transaction) {
+
+            if ($transaction->getDirection() == '1') {
+                $this->changeStatusAndSave($transaction, new TransactionStatus(TransactionStatus::RECEIVED));
+            } else {
+                $this->changeStatusAndSave($transaction, new TransactionStatus(TransactionStatus::SENT));
+            }
+        }
+    }
 }
 
 

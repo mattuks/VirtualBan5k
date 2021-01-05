@@ -36,17 +36,7 @@ class UpdateStatuses
      */
     public function handle($event)
     {
-        $transactions = Transaction::where('operation_id', $event->operation->getId());
-
-        foreach ($transactions as $transaction) {
-            if ($transaction->getDirection() == '1') {
-                $this->transactionService->changeStatusAndSave($transaction, new TransactionStatus(TransactionStatus::RECEIVED));
-            } else {
-                $this->transactionService->changeStatusAndSave($transaction, new TransactionStatus(TransactionStatus::SENT));
-            }
-        }
-
         $this->operationService->changeStatusAndSave($event->operation, new OperationStatus(OperationStatus::SUCCESS));
-
+        $this->transactionService->setTransactionsStatusesToSuccess(Transaction::where('operation_id', $event->operation->getId())->get());
     }
 }

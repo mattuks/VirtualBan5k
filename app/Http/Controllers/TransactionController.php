@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Account;
 use App\Enums\OperationStatus;
 use App\Events\OperationCreated;
-use App\Factories\TransactionFactory;
 use App\Services\AccountService;
 use App\Services\OperationService;
 use App\Services\TransactionService;
@@ -13,7 +12,9 @@ use App\Transaction;
 use Cknow\Money\Money;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Money\Currency;
 
@@ -27,10 +28,6 @@ class TransactionController extends Controller
      * @var AccountService
      */
     private $accountService;
-    /**
-     * @var TransactionFactory
-     */
-    private $transactionFactory;
     /**
      * @var TransactionService
      */
@@ -74,21 +71,31 @@ class TransactionController extends Controller
      */
     public function create($id)
     {
-        return view('transactions.create', ['account' => Account::where('id',$id)->firstOrFail()]);
+        return view('transactions.create', ['account' => Account::where('id', $id)->firstOrFail()]);
     }
 
     /**
      * @param Request $request
+     * @return RedirectResponse
+     * @throws ValidationException
      */
     public function store(Request $request)
     {
+        $this->validate($request,[
+            'receiver_uuid' => 'required|exists:accounts,uuid',
+            'amount' => 'required|numeric|regex:/^[+]?\d+([.]\d+)?$/m'
+        ] );
+
         $operation = $this->operationService->create([
             'sender_uuid' => $request['sender_uuid'],
             'receiver_uuid' => $request['receiver_uuid'],
-            'amount' => new Money($request['amount']*100,new Currency($request['currency'])),
+            'amount' => new Money($request['amount'] * 100, new Currency($request['currency'])),
             'currency' => new Currency($request['currency']),
             'status' => new OperationStatus(OperationStatus::PENDING),
         ]);
-        event(new OperationCreated($operation));
+
+        $this->operationService->checkAccountAmount($operation, $request);
+
+        return redirect()->back()->withInput($request->input());
     }
 }
