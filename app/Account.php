@@ -2,8 +2,11 @@
 
 namespace App;
 
+use Cknow\Money\Money;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Money\Currency;
 
 /**
  * Class AccountEvent
@@ -11,6 +14,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Account extends Model
 {
+
+    /**
+     * @return HasMany
+     */
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function operation(): BelongsTo
+    {
+        return $this->belongsTo(Operation::class);
+    }
     /**
      * @return BelongsTo
      */
@@ -68,37 +87,56 @@ class Account extends Model
     /**
      * @return string
      */
-    public function getCurrency(): string
+    public function getUUID(): string
     {
-        return $this->getAttribute('currency');
+        return $this->getAttribute('uuid');
     }
 
     /**
-     * @param string $currency
+     * @param string $uuid
      * @return $this
      */
-    public function setCurrency(string $currency): self
+    public function setUUID(string $uuid): self
     {
-        $this->setAttribute('currency', $currency);
+        $this->setAttribute('uuid', $uuid);
 
         return $this;
     }
 
     /**
-     * @return int
+     * @return Currency
      */
-    public function getAmount(): int
+    public function getCurrency(): Currency
     {
-        return $this->getAttribute('amount');
+        return new Currency($this->getAttribute('currency'));
     }
 
     /**
-     * @param int $amount
+     * @param Currency $currency
      * @return $this
      */
-    public function setAmount(int $amount): self
+    public function setCurrency(Currency $currency): self
     {
-        $this->setAttribute('amount', $amount);
+        $this->setAttribute('currency', $currency->getCode());
+
+        return $this;
+    }
+
+    /**
+     * @return Money
+     */
+    public function getAmount(): Money
+    {
+        return new Money($this->getAttribute('amount'), new Currency($this->getCurrency()->getCode()));
+    }
+
+    /**
+     * @param Money $money
+     * @return $this
+     */
+    public function setAmount(Money $money): self
+    {
+        $this->setAttribute('amount', $money->getAmount());
 
         return $this;
     }

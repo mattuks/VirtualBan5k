@@ -1,13 +1,11 @@
 <?php
 
+use App\Enums\OperationStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-/**
- * Class CreateAccountsTable
- */
-class CreateAccountsTable extends Migration
+class CreateOperationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -16,15 +14,14 @@ class CreateAccountsTable extends Migration
      */
     public function up()
     {
-        Schema::create('accounts', function (Blueprint $table) {
+        Schema::create('operations', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->integer('amount')->default(0);
+            $table->string('sender_uuid');
+            $table->string('receiver_uuid');
+            $table->integer('amount');
             $table->string('currency');
-            $table->string('name');
-            $table->uuid('uuid');
+            $table->enum('status', OperationStatus::getValues());
             $table->timestamps();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -35,6 +32,6 @@ class CreateAccountsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('accounts');
+        Schema::dropIfExists('operations');
     }
 }

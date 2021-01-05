@@ -4,6 +4,8 @@
 namespace App\Factories;
 
 use App\Account;
+use Faker\Provider\Uuid;
+use Money\Currency;
 
 /**
  * Class AccountFactory
@@ -20,7 +22,8 @@ class AccountFactory
         $account = new Account();
         $account->setUserId($data['user_id']);
         $account->setName($data['name']);
-        $account->setCurrency($data['currency']);
+        $account->setUUID(Uuid::uuid());
+        $account->setCurrency(new Currency($data['currency']));
 
         return $account;
     }

@@ -2,11 +2,10 @@
 
 namespace App\Listeners;
 
+use App\Events\AccountCreated;
 use App\Factories\AccountFactory;
 use App\User;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 /**
  * Class CreateAccount
@@ -22,10 +21,12 @@ class CreateAccount
         /** @var User $user */
         $user = $event->user;
 
-        AccountFactory::create([
+        $account = AccountFactory::create([
             'user_id' => $user->getId(),
             'name' => 'EUR Account',
             'currency' => 'EUR',
-        ])->save();
+        ]);
+
+        event(new AccountCreated($account));
     }
 }
