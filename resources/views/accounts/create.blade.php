@@ -10,13 +10,12 @@
             <div class="form-group">
                 <label for="currency">Currency</label>
                 <select class="form-control" id="currency" name="currency">
-                    <option>EUR</option>
-                    <option>USD</option>
-                    <option>GBP</option>
+                    @foreach(config('currencies.available') as $currency)
+                        <option>{{$currency}}</option>
+                    @endforeach
                 </select>
             </div>
             <button class="btn btn-primary btn-block">Create Account</button>
-            <a href="{{route('home')}}" class="btn btn-danger btn-block">Cancel</a>
         </form>
     </div>
 </div>
