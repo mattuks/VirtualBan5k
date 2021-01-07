@@ -1,21 +1,12 @@
 @extends('layouts.app')
 @section('content')
     <div class="row w-100">
-        <div class="w-100 h-75 p-2">
-            <div class="card shadow">
-                <div class="text-center">
-                    <h1>{{ Auth::user()->name }}</h1>
-                </div>
+        <div class="w-100">
                 @if(session('bonus'))
                     <div class="alert alert-success text-center">
                         {{session('bonus')}}
                     </div>
                 @endif
-                <div class="w-100 p-2 text-right">
-                    <a href="{{route('account-create')}}" class="btn btn-secondary btn-sm">Open Account</a>
-                    <a href="{{route('all-transactions')}}" class="btn btn-secondary btn-sm">User Transactions</a>
-                </div>
-            </div>
         </div>
         @foreach($accounts as $account)
             <div class="w-100 p-2">

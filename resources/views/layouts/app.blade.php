@@ -20,9 +20,55 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
 <body>
-@include('inc.navbar')
-<div class="container">
-        @yield('content')
+<div class="container-fluid">
+    <div class="row min-vh-100 flex-column flex-md-row">
+        <aside class="col-12 col-md-2 p-0 flex-shrink-1">
+            <nav class="navbar navbar-expand navbar-light flex-md-column flex-row align-items-start py-2">
+                <div class="collapse navbar-collapse ">
+                    <ul class="flex-md-column flex-row navbar-nav w-100 justify-content-between">
+                        <div class="p-2">
+                            <div class="dot p-5 align-items-center ">
+                                <span>{{ Auth::user()->name[0] }}</span>
+                            </div>
+                        </div>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {{ Auth::user()->name }}
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                <a class="dropdown-item" href="{{ route('logout') }}"
+                                   onclick="event.preventDefault();
+                                                     document.getElementById('logout-form').submit();">
+                                    {{ __('Logout') }}
+                                </a>
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                    @csrf
+                                </form>
+                            </div>
+                        </li>
+                        <li class="nav-item pl-2">
+                            <a class="nav-link pl-0 " href="{{route('home')}}"><i class="fas fa-coins"></i> <span
+                                    class="d-none d-md-inline pl-2">Accounts</span></a>
+                        </li>
+                        <li class="nav-item pl-2">
+                            <a class="nav-link pl-0 " href="{{route('account-create')}}"><i class="fas fa-plus"></i><span
+                                    class="d-none d-md-inline pl-2">New Account</span></a>
+                        </li>
+
+                        <li class="nav-item pl-2">
+                            <a class="nav-link pl-0 " href="{{route('all-transactions')}}"><i class="fas fa-history"></i><span
+                                    class="d-none d-md-inline pl-2">All Transactions</span></a>
+                        </li>
+
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+        <main class="col bg-faded py-3 flex-grow-1">
+            @yield('content')
+        </main>
+    </div>
 </div>
 </body>
 </html>
+

@@ -38,10 +38,9 @@
                     @error('amount')
                         <span class="text-danger">{{$message}}</span>
                     @enderror
-                    <div class="text-right">
-                        <a href="{{route('home')}}" class="btn btn-danger mt-2">BACK</a>
-                        <button type="submit" class="btn btn-success mt-2">SEND</button>
-                    </div>
+                </div>
+                <div class="mt-4">
+                    <button class="btn btn-primary btn-block mt-2">SEND</button>
                 </div>
             </form>
         </div>

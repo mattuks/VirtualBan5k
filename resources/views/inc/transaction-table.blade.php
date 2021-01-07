@@ -1,4 +1,4 @@
-<div class="card">
+<div class="card rounded-0">
     <div class="card-header bg-white">
         <h2 class="text-center">Transactions</h2>
     </div>
@@ -32,8 +32,5 @@
     @else
         <p class="text-center p-4 text-muted">There is no transactions made yet</p>
     @endif
-    <div class="m-3">
-        <a href="{{route('home')}}" class="btn btn-secondary btn-block">Go Back</a>
-    </div>
 </div>
 
