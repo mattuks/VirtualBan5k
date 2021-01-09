@@ -53,16 +53,16 @@ class CreateTransactions
      */
     public function handle(object $event)
     {
-        DB::transaction(function () use ($event) {
             try {
+                DB::transaction(function () use ($event) {
                 $this->transactionService->createOutTransaction(Account::where('uuid', $event->operation->getSenderUUID())
                     ->first(), $event);
                 $this->transactionService->createInTransaction(Account::where('uuid', $event->operation->getReceiverUUID())
                     ->first(), $event);
+                });
             } catch (\TypeError $typeError) {
                 DB::rollBack();
                 logger($typeError->getMessage());
             }
-        });
     }
 }

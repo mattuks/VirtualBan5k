@@ -92,6 +92,13 @@ class OperationService
         } catch (\Exception $exception) {
             logger($exception->getMessage());
             db::rollBack();
+            $operation = $this->createAndSave([
+                'sender_uuid' => $request['sender_uuid'],
+                'receiver_uuid' => $request['receiver_uuid'],
+                'amount' => new Money($request['amount'] * 100, new Currency($request['currency'])),
+                'currency' => new Currency($request['currency']),
+                'status' => new OperationStatus(OperationStatus::FAILED),
+            ]);
         };
     }
 }
