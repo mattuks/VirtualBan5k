@@ -3,7 +3,9 @@
 
 namespace App\Services;
 
+use App\Enums\TransactionDirectionType;
 use App\Enums\TransactionStatus;
+use App\Enums\TransactionType;
 use App\Factories\TransactionFactory;
 use App\Transaction;
 
@@ -11,7 +13,7 @@ use App\Transaction;
  * Class TransactionService
  * @package App\Services
  */
-class TransactionService
+class TransactionService extends ConversationService
 {
     /**
      * @param array $data
@@ -59,6 +61,42 @@ class TransactionService
                 $this->changeStatusAndSave($transaction, new TransactionStatus(TransactionStatus::SENT));
             }
         }
+    }
+
+    /**
+     * @param $account
+     * @param $event
+     */
+    public function createInTransaction($account, $event)
+    {
+        TransactionFactory::create([
+            'user_id' => $account->getUserId(),
+            'operation_id' => $event->operation->getId(),
+            'account_id' => $account->getId(),
+            'currency' => $account->getCurrency(),
+            'status' => new TransactionStatus(TransactionStatus::PENDING),
+            'type' => new TransactionType(TransactionType::TRANSFER),
+            'direction' => new TransactionDirectionType(TransactionDirectionType::IN),
+            'amount' => $this->convertMoney($event->operation->getAmount(), $account->getCurrency())
+        ])->save();
+    }
+
+    /**
+     * @param $account
+     * @param $event
+     */
+    public function createOutTransaction($account, $event)
+    {
+        TransactionFactory::create([
+            'user_id' => $account->getUserId(),
+            'operation_id' => $event->operation->getId(),
+            'account_id' => $account->getId(),
+            'currency' => $event->operation->getCurrency(),
+            'status' => new TransactionStatus(TransactionStatus::PENDING),
+            'type' => new TransactionType(TransactionType::TRANSFER),
+            'direction' => new TransactionDirectionType(TransactionDirectionType::OUT),
+            'amount' => $event->operation->getAmount()->negative()
+        ])->save();
     }
 }
 

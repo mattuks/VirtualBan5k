@@ -55,48 +55,14 @@ class CreateTransactions
     {
         DB::transaction(function () use ($event) {
             try {
-                $this->createOutTransaction(Account::where('uuid', $event->operation->getSenderUUID())->first(), $event);
-                $this->createInTransaction(Account::where('uuid', $event->operation->getReceiverUUID())->first(), $event);
+                $this->transactionService->createOutTransaction(Account::where('uuid', $event->operation->getSenderUUID())
+                    ->first(), $event);
+                $this->transactionService->createInTransaction(Account::where('uuid', $event->operation->getReceiverUUID())
+                    ->first(), $event);
             } catch (\TypeError $typeError) {
                 DB::rollBack();
                 logger($typeError->getMessage());
             }
         });
-    }
-
-    /**
-     * @param $account
-     * @param $event
-     */
-    public function createInTransaction($account, $event)
-    {
-        TransactionFactory::create([
-            'user_id' => $account->getUserId(),
-            'operation_id' => $event->operation->getId(),
-            'account_id' => $account->getId(),
-            'currency' => $account->getCurrency(),
-            'status' => new TransactionStatus(TransactionStatus::PENDING),
-            'type' => new TransactionType(TransactionType::TRANSFER),
-            'direction' => new TransactionDirectionType(TransactionDirectionType::IN),
-            'amount' => $this->conversationService->convertMoney($event->operation->getAmount(), $account->getCurrency())
-        ])->save();
-    }
-
-    /**
-     * @param $account
-     * @param $event
-     */
-    public function createOutTransaction($account, $event)
-    {
-        TransactionFactory::create([
-            'user_id' => $account->getUserId(),
-            'operation_id' => $event->operation->getId(),
-            'account_id' => $account->getId(),
-            'currency' => $event->operation->getCurrency(),
-            'status' => new TransactionStatus(TransactionStatus::PENDING),
-            'type' => new TransactionType(TransactionType::TRANSFER),
-            'direction' => new TransactionDirectionType(TransactionDirectionType::OUT),
-            'amount' => $event->operation->getAmount()->negative()
-        ])->save();
     }
 }

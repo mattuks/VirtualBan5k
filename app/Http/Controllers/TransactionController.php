@@ -14,9 +14,11 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Money\Currency;
+use mysql_xdevapi\Exception;
 
 class TransactionController extends Controller
 {
@@ -86,16 +88,10 @@ class TransactionController extends Controller
             'amount' => 'required|numeric|regex:/^[+]?\d+([.]\d+)?$/m'
         ] );
 
-        $operation = $this->operationService->create([
-            'sender_uuid' => $request['sender_uuid'],
-            'receiver_uuid' => $request['receiver_uuid'],
-            'amount' => new Money($request['amount'] * 100, new Currency($request['currency'])),
-            'currency' => new Currency($request['currency']),
-            'status' => new OperationStatus(OperationStatus::PENDING),
-        ]);
-
-        $this->operationService->checkAccountAmount($operation, $request);
+        $this->operationService->createOperation($request);
 
         return redirect()->back()->withInput($request->input());
     }
+
+
 }
