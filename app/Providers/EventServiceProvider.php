@@ -9,6 +9,7 @@ use App\Listeners\CreateAccount;
 use App\Listeners\AddRegistrationBonus;
 use App\Listeners\CreateTransactions;
 use App\Listeners\MoneyTransferred;
+use App\Listeners\SendOperationStatusNotification;
 use App\Listeners\SendTransactionSentNotification;
 use App\Listeners\UpdateAccountsAmounts;
 use App\Listeners\UpdateStatuses;

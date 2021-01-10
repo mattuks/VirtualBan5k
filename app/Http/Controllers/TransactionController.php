@@ -3,23 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Account;
-use App\Enums\OperationStatus;
-use App\Events\OperationCreated;
-use App\Notifications\OperationWasCreated;
+use App\Http\Requests\OperationRequest;
+use App\Jobs\CreateOperations;
+use App\Notifications\OperationCreatedNotification;
 use App\Services\AccountService;
 use App\Services\OperationService;
 use App\Services\TransactionService;
 use App\Transaction;
-use Cknow\Money\Money;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-use Money\Currency;
-use mysql_xdevapi\Exception;
 
 class TransactionController extends Controller
 {
@@ -78,18 +74,14 @@ class TransactionController extends Controller
     }
 
     /**
-     * @param Request $request
+     * @param OperationRequest $request
      * @return RedirectResponse
-     * @throws ValidationException
      */
-    public function store(Request $request)
+    public function store(OperationRequest $request)
     {
-        $this->validate($request,[
-            'receiver_uuid' => 'required|exists:accounts,uuid',
-            'amount' => 'required|numeric|regex:/^[+]?\d+([.]\d+)?$/m'
-        ] );
 
-        $this->operationService->createOperation($request);
+        $this->operationService->checkAccountFunds($request);
+
 
         return redirect()->back()->withInput($request->input());
     }

@@ -7,14 +7,14 @@ use App\Account;
 use App\Enums\OperationStatus;
 use App\Events\OperationCreated;
 use App\Factories\OperationFactory;
-use App\Notifications\OperationWasCreated;
+use App\Http\Requests\OperationRequest;
+use App\Jobs\CreateOperations;
+use App\Notifications\OperationCreatedNotification;
 use App\Operation;
+use Carbon\Carbon;
 use Cknow\Money\Money;
-use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
 use Money\Currency;
 
 /**
@@ -57,50 +57,49 @@ class OperationService
     }
 
     /**
-     * @param Operation $operation
      * @param $request
      * @return RedirectResponse
      */
-    public function approveOperation(Operation $operation, $request){
-        if (Account::where('uuid',$request['sender_uuid'])->first()->getAmount()->lessThanOrEqual($operation->getAmount())){
-            $this->changeStatusAndSave($operation, new OperationStatus(OperationStatus::FAILED));
-            return back()->with('failed', 'Insufficient account balance');
-        }else{
-            $operation->save();
-            event(new OperationCreated($operation));
+
+    public function checkAccountFunds($request)
+    {
+        if ($request['amount'] * 100 <= intval(Account::where('uuid', $request['sender_uuid'])->first()->getAmount()->getAmount())) {
+            dispatch(new CreateOperations($request->all(), $request->user()))->delay(Carbon::now()->addSeconds(90));
             return back()->with('success', 'Transaction has been made check for status in the Notification page.');
+        } else {
+            return back()->with('failed', 'Insufficient account balance');
         }
     }
-
-    /**
-     * @param Request $request
-     */
-    public function createOperation(Request $request): void
-    {
-        try {
-            DB::transaction(function () use ($request) {
-                $operation = $this->create([
-                    'sender_uuid' => $request['sender_uuid'],
-                    'receiver_uuid' => $request['receiver_uuid'],
-                    'amount' => new Money($request['amount'] * 100, new Currency($request['currency'])),
-                    'currency' => new Currency($request['currency']),
-                    'status' => new OperationStatus(OperationStatus::PENDING),
-                ]);
-                $this->approveOperation($operation, $request);
-                $request->user()->notify(new OperationWasCreated($operation));
-            });
-
-        } catch (\Exception $exception) {
-            logger($exception->getMessage());
-            db::rollBack();
-            $operation = $this->createAndSave([
-                'sender_uuid' => $request['sender_uuid'],
-                'receiver_uuid' => $request['receiver_uuid'],
-                'amount' => new Money($request['amount'] * 100, new Currency($request['currency'])),
-                'currency' => new Currency($request['currency']),
-                'status' => new OperationStatus(OperationStatus::FAILED),
-            ]);
-            $request->user()->notify(new OperationWasCreated($operation));
-        };
-    }
+//
+//    /**
+//     * @param OperationRequest $request
+//     */
+//    public static function createOperation(OperationRequest $request): void
+//    {
+//        try {
+//            DB::transaction(function () use ($request) {
+//                $operation = $this->createAndSave([
+//                    'sender_uuid' => $request['sender_uuid'],
+//                    'receiver_uuid' => $request['receiver_uuid'],
+//                    'amount' => new Money($request['amount'] * 100, new Currency($request['currency'])),
+//                    'currency' => new Currency($request['currency']),
+//                    'status' => new OperationStatus(OperationStatus::PENDING),
+//                ]);
+//                $request->user()->notify(new OperationCreatedNotification($operation));
+//                event(new OperationCreated($operation));
+//            });
+//
+//        } catch (\Exception $exception) {
+//            DB::rollBack();
+//            logger($exception->getMessage());
+//            $operation = $this->createAndSave([
+//                'sender_uuid' => $request['sender_uuid'],
+//                'receiver_uuid' => $request['receiver_uuid'],
+//                'amount' => new Money($request['amount'] * 100, new Currency($request['currency'])),
+//                'currency' => new Currency($request['currency']),
+//                'status' => new OperationStatus(OperationStatus::FAILED),
+//            ]);
+//            $request->user()->notify(new OperationCreatedNotification($operation));
+//        };
+//    }
 }
