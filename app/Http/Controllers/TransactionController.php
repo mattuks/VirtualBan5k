@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Account;
 use App\Enums\OperationStatus;
 use App\Events\OperationCreated;
+use App\Notifications\OperationWasCreated;
 use App\Services\AccountService;
 use App\Services\OperationService;
 use App\Services\TransactionService;

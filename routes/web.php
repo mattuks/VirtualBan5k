@@ -27,3 +27,4 @@ Route::post('/transaction', 'TransactionController@store')->name('transaction-st
 Route::get('/account', 'AccountController@index');
 Route::get('/account/create', 'AccountController@create')->name('account-create');
 Route::post('/account/store', 'AccountController@store')->name('account-store');
+Route::get('/notifications', 'NotificationsController@show')->name('notifications');

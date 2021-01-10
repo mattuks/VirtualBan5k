@@ -6,6 +6,7 @@ namespace App\Services;
 use App\Enums\TransactionDirectionType;
 use App\Enums\TransactionStatus;
 use App\Enums\TransactionType;
+use App\Events\TransactionCreated;
 use App\Factories\TransactionFactory;
 use App\Transaction;
 
@@ -69,7 +70,7 @@ class TransactionService extends ConversationService
      */
     public function createInTransaction($account, $event)
     {
-        TransactionFactory::create([
+        $this->createAndSave([
             'user_id' => $account->getUserId(),
             'operation_id' => $event->operation->getId(),
             'account_id' => $account->getId(),
@@ -78,7 +79,7 @@ class TransactionService extends ConversationService
             'type' => new TransactionType(TransactionType::TRANSFER),
             'direction' => new TransactionDirectionType(TransactionDirectionType::IN),
             'amount' => $this->convertMoney($event->operation->getAmount(), $account->getCurrency())
-        ])->save();
+        ]);
     }
 
     /**
@@ -87,7 +88,7 @@ class TransactionService extends ConversationService
      */
     public function createOutTransaction($account, $event)
     {
-        TransactionFactory::create([
+        $this->createAndSave([
             'user_id' => $account->getUserId(),
             'operation_id' => $event->operation->getId(),
             'account_id' => $account->getId(),
@@ -96,7 +97,7 @@ class TransactionService extends ConversationService
             'type' => new TransactionType(TransactionType::TRANSFER),
             'direction' => new TransactionDirectionType(TransactionDirectionType::OUT),
             'amount' => $event->operation->getAmount()->negative()
-        ])->save();
+        ]);
     }
 }
 

@@ -7,6 +7,7 @@ use App\Account;
 use App\Enums\OperationStatus;
 use App\Events\OperationCreated;
 use App\Factories\OperationFactory;
+use App\Notifications\OperationWasCreated;
 use App\Operation;
 use Cknow\Money\Money;
 use Illuminate\Contracts\Foundation\Application;
@@ -60,14 +61,14 @@ class OperationService
      * @param $request
      * @return RedirectResponse
      */
-    public function checkAccountAmount(Operation $operation, $request){
+    public function approveOperation(Operation $operation, $request){
         if (Account::where('uuid',$request['sender_uuid'])->first()->getAmount()->lessThanOrEqual($operation->getAmount())){
             $this->changeStatusAndSave($operation, new OperationStatus(OperationStatus::FAILED));
             return back()->with('failed', 'Insufficient account balance');
         }else{
             $operation->save();
             event(new OperationCreated($operation));
-            return back()->with('success', 'Money has been sent!');
+            return back()->with('success', 'Transaction has been made check for status in the Notification page.');
         }
     }
 
@@ -85,8 +86,8 @@ class OperationService
                     'currency' => new Currency($request['currency']),
                     'status' => new OperationStatus(OperationStatus::PENDING),
                 ]);
-
-                $this->checkAccountAmount($operation, $request);
+                $this->approveOperation($operation, $request);
+                $request->user()->notify(new OperationWasCreated($operation));
             });
 
         } catch (\Exception $exception) {
@@ -99,6 +100,7 @@ class OperationService
                 'currency' => new Currency($request['currency']),
                 'status' => new OperationStatus(OperationStatus::FAILED),
             ]);
+            $request->user()->notify(new OperationWasCreated($operation));
         };
     }
 }
