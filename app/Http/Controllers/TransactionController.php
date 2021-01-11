@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Account;
 use App\Http\Requests\OperationRequest;
 use App\Jobs\CreateOperations;
-use App\Notifications\OperationCreatedNotification;
+use App\Notifications\OperationStatusNotification;
 use App\Services\AccountService;
 use App\Services\OperationService;
 use App\Services\TransactionService;

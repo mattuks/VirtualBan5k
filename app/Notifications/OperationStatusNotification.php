@@ -5,11 +5,9 @@ namespace App\Notifications;
 use App\Operation;
 use App\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class OperationCreatedNotification extends Notification
+class OperationStatusNotification extends Notification
 {
     use Queueable;
 
@@ -19,7 +17,7 @@ class OperationCreatedNotification extends Notification
     public $operation;
 
     /**
-     * OperationCreatedNotification constructor.
+     * OperationStatusNotification constructor.
      * @param Operation $operation
      */
     public function __construct(Operation $operation)

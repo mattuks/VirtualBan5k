@@ -4,7 +4,7 @@ namespace App\Jobs;
 
 use App\Enums\OperationStatus;
 use App\Events\OperationCreated;
-use App\Notifications\OperationCreatedNotification;
+use App\Notifications\OperationStatusNotification;
 use App\Operation;
 use Cknow\Money\Money;
 use Illuminate\Bus\Queueable;
@@ -55,7 +55,7 @@ class CreateOperations implements ShouldQueue
         $operation->setStatus(new OperationStatus(OperationStatus::PENDING));
         $operation->save();
 
-        $this->user->notify(new OperationCreatedNotification($operation));
+        $this->user->notify(new OperationStatusNotification($operation));
         event(new OperationCreated($operation));
 
         }catch (\Exception $exception){

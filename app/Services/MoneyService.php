@@ -16,4 +16,13 @@ class MoneyService
     {
         return new Money($amount * 100, $currency);
     }
+
+    /**
+     * @param int $amount
+     * @return float|int
+     */
+    public function parseToCents(int $amount)
+    {
+        return $amount * 100;
+    }
 }

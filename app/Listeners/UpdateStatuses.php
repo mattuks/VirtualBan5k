@@ -4,7 +4,7 @@ namespace App\Listeners;
 
 use App\Enums\OperationStatus;
 use App\Enums\TransactionStatus;
-use App\Notifications\OperationCreatedNotification;
+use App\Notifications\OperationStatusNotification;
 use App\Operation;
 use App\Services\OperationService;
 use App\Services\TransactionService;

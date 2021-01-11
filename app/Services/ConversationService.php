@@ -4,62 +4,68 @@
 namespace App\Services;
 
 
+use App\Currency;
 use Cknow\Money\Money;
-use Money\Currency;
+use Money\Currency as MoneyCurrency;
 
 class ConversationService
 {
+
+
+
+    /**
+     * @param int $amount
+     * @param string $fromCurrency
+     * @param string $toCurrency
+     * @return float|int
+     */
+    public function convert(int $amount, string $fromCurrency, string $toCurrency)
+    {
+        if (isMainCurrency($fromCurrency)) {
+            return $this->convertFromEuro($amount, $this->getRate($toCurrency));
+        } else {
+            return $this->convertFromEuro($this->convertToEuro($amount, $this->getRate($fromCurrency)), $this->getRate($toCurrency));
+        }
+    }
+
+    /**
+     * @param int $amount
+     * @param float $rate
+     * @return float|int
+     */
+    public function convertToEuro(int $amount, float $rate)
+    {
+        return $amount / $rate;
+    }
+
+    /**
+     * @param int $amount
+     * @param float $rate
+     * @return float|int
+     */
+    public function convertFromEuro(int $amount, float $rate)
+    {
+        return $amount * $rate;
+    }
+
+    /**
+     * @param string $currency
+     * @return mixed
+     */
+    public function getRate(string $currency)
+    {
+        return Currency::all()->where('currency', $currency)->first()->getRate();
+    }
+
     /**
      * @param Money $money
-     * @param Currency $currency
+     * @param MoneyCurrency $currency
      * @return Money
      */
-    public function convertMoney(Money $money, Currency $currency): Money
+    public function convertMoney(Money $money, MoneyCurrency $currency): Money
     {
         return new Money($this->convert($money->getAmount(), $money->getCurrency()->getCode(), $currency->getCode()), $currency);
     }
 
-    /**
-     * @param $amount
-     * @param $from
-     * @param $to
-     * @return float|int
-     */
-    private function convert($amount, $from, $to)
-    {
 
-        if ($from !== config('currencies.main')) {
-            return $this->convertFromEuro($this->convertToEuro($amount, $from), $to);
-        } else {
-            return $this->convertFromEuro($amount, $to);
-        }
-    }
-
-    /**
-     * @param $amount
-     * @param $currency
-     * @return float|int
-     */
-    private function convertToEuro(int $amount, string $currency)
-    {
-        foreach (config('currencies.rates') as $key => $value) {
-            if ($key === $currency) {
-                return $amount / $value;
-            }
-        }
-    }
-
-    /**
-     * @param $amount
-     * @param $currency
-     * @return float|int
-     */
-    private function convertFromEuro(int $amount, string $currency)
-    {
-        foreach (config('currencies.rates') as $key => $value) {
-            if ($key === $currency) {
-                return $amount * $value;
-            }
-        }
-    }
 }

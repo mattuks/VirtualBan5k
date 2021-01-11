@@ -5,24 +5,19 @@ namespace App\Services;
 
 use App\Account;
 use App\Enums\OperationStatus;
-use App\Events\OperationCreated;
 use App\Factories\OperationFactory;
 use App\Http\Requests\OperationRequest;
 use App\Jobs\CreateOperations;
-use App\Notifications\OperationCreatedNotification;
+use App\Notifications\OperationStatusNotification;
 use App\Operation;
 use App\User;
-use Carbon\Carbon;
-use Cknow\Money\Money;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\DB;
-use Money\Currency;
 
 /**
  * Class OperationService
  * @package App\Services
  */
-class OperationService extends MoneyService
+class OperationService extends ConversationService
 {
     /**
      * @var CurrencyService
@@ -71,7 +66,7 @@ class OperationService extends MoneyService
     public function sendNotificationAboutOperationStatusToUser($operation)
     {
         $user = User::where('id', $operation->getUserId())->first();
-        $user->notify(new OperationCreatedNotification($operation));
+        $user->notify(new OperationStatusNotification($operation));
     }
     /**
      * @param Operation $operation
@@ -89,14 +84,10 @@ class OperationService extends MoneyService
      * @param OperationRequest $request
      * @return bool
      */
-
-    private function checkAccountFunds(OperationRequest $request): bool
+    private function checkAccountFunds(OperationRequest $request)
     {
-        if ($request['amount'] * 100 <= intval(Account::where('uuid', $request['sender_uuid'])->first()->getAmount()->getAmount())) {
-            return true;
-        } else {
-            return false;
-        }
+        return parseToCents($request->input('amount')) <= intval(Account::where('uuid', $request['sender_uuid'])
+            ->first()->getAmount()->getAmount());
     }
 
     /**
@@ -111,9 +102,8 @@ class OperationService extends MoneyService
             return back()->with('failed', 'Insufficient account balance');
 
         } else {
-            $this->currencyService->updateCurrencyRates();
             $this->accountService->subtractFromAmount(Account::where('id', $request['account_id'])->first(),
-                \money($request->input('amount') * 100, $request->input('currency')));
+                \money(parseToCents($request->input('amount')), $request->input('currency')));
 
             dispatch(new CreateOperations($request->all(), $request->user()));
 
