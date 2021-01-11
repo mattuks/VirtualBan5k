@@ -14,7 +14,7 @@ class ConversationService
      * @param Currency $currency
      * @return Money
      */
-    public  function convertMoney(Money $money, Currency $currency)
+    public function convertMoney(Money $money, Currency $currency): Money
     {
         return new Money($this->convert($money->getAmount(), $money->getCurrency()->getCode(), $currency->getCode()), $currency);
     }
@@ -25,10 +25,10 @@ class ConversationService
      * @param $to
      * @return float|int
      */
-    public function convert($amount, $from, $to)
+    private function convert($amount, $from, $to)
     {
 
-        if ($from !== 'EUR') {
+        if ($from !== config('currencies.main')) {
             return $this->convertFromEuro($this->convertToEuro($amount, $from), $to);
         } else {
             return $this->convertFromEuro($amount, $to);
@@ -40,7 +40,7 @@ class ConversationService
      * @param $currency
      * @return float|int
      */
-    public function convertToEuro(int $amount, string $currency)
+    private function convertToEuro(int $amount, string $currency)
     {
         foreach (config('currencies.rates') as $key => $value) {
             if ($key === $currency) {
@@ -54,7 +54,7 @@ class ConversationService
      * @param $currency
      * @return float|int
      */
-    public function convertFromEuro(int $amount, string $currency)
+    private function convertFromEuro(int $amount, string $currency)
     {
         foreach (config('currencies.rates') as $key => $value) {
             if ($key === $currency) {
@@ -62,5 +62,4 @@ class ConversationService
             }
         }
     }
-
 }

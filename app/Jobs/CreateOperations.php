@@ -4,22 +4,17 @@ namespace App\Jobs;
 
 use App\Enums\OperationStatus;
 use App\Events\OperationCreated;
-use App\Factories\OperationFactory;
 use App\Notifications\OperationCreatedNotification;
 use App\Operation;
-use App\Services\OperationService;
-use App\User;
+use Cknow\Money\Money;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\Queue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Http\Request;
-use Cknow\Money\Money;
 use Money\Currency;
 
-class CreateOperations
+class CreateOperations implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -49,6 +44,7 @@ class CreateOperations
      */
     public function handle()
     {
+        try {
         $operation = new Operation();
         $operation->setUserId($this->user->getId());
         $operation->setAccountId($this->operation['account_id']);
@@ -61,5 +57,9 @@ class CreateOperations
 
         $this->user->notify(new OperationCreatedNotification($operation));
         event(new OperationCreated($operation));
+
+        }catch (\Exception $exception){
+            logger($exception);
+        }
     }
 }

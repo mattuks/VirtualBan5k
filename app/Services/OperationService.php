@@ -25,6 +25,10 @@ use Money\Currency;
 class OperationService extends MoneyService
 {
     /**
+     * @var CurrencyService
+     */
+    public $currencyService;
+    /**
      * @var AccountService
      */
     private $accountService;
@@ -32,10 +36,12 @@ class OperationService extends MoneyService
     /**
      * OperationService constructor.
      * @param AccountService $accountService
+     * @param CurrencyService $currencyService
      */
-    public function __construct(AccountService $accountService)
+    public function __construct(AccountService $accountService, CurrencyService $currencyService)
     {
         $this->accountService = $accountService;
+        $this->currencyService = $currencyService;
     }
 
     /**
@@ -80,11 +86,11 @@ class OperationService extends MoneyService
     }
 
     /**
-     * @param $request
+     * @param OperationRequest $request
      * @return bool
      */
 
-    private function checkAccountFunds($request)
+    private function checkAccountFunds(OperationRequest $request): bool
     {
         if ($request['amount'] * 100 <= intval(Account::where('uuid', $request['sender_uuid'])->first()->getAmount()->getAmount())) {
             return true;
@@ -94,10 +100,10 @@ class OperationService extends MoneyService
     }
 
     /**
-     * @param $request
+     * @param OperationRequest $request
      * @return RedirectResponse
      */
-    public function createOperation($request)
+    public function createOperation(OperationRequest $request): RedirectResponse
     {
 
         if (!$this->checkAccountFunds($request)) {
@@ -105,11 +111,11 @@ class OperationService extends MoneyService
             return back()->with('failed', 'Insufficient account balance');
 
         } else {
-            $this->createMoney($request['amount'], new Currency($request['currency']));
+            $this->currencyService->updateCurrencyRates();
+            $this->accountService->subtractFromAmount(Account::where('id', $request['account_id'])->first(),
+                \money($request->input('amount') * 100, $request->input('currency')));
 
-            $this->accountService->subtractFromAmount(Account::where('id', $request['account_id'])->first(), $this->createMoney($request['amount'], new Currency($request['currency'])));
-
-            dispatch(new CreateOperations($request->all(), $request->user()))->delay(Carbon::now()->addSeconds(10));
+            dispatch(new CreateOperations($request->all(), $request->user()));
 
             return back()->with('success', 'Transaction has been made check for status in the Notification page.');
         };

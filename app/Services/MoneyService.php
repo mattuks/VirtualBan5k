@@ -7,7 +7,12 @@ use Money\Currency;
 
 class MoneyService
 {
-    public function createMoney($amount, Currency $currency)
+    /**
+     * @param $amount
+     * @param Currency $currency
+     * @return Money
+     */
+    public function createMoney($amount, Currency $currency): Money
     {
         return new Money($amount * 100, $currency);
     }

@@ -2,9 +2,10 @@
 
 return [
     'rates' => [
-        'EUR' => 1,
-        'USD' => 1.21,
-        'GBP' => 0.90,
+        'eur' => 1,
+        'usd' => 1.21,
+        'gbp' => 0.90,
     ],
-    'available' => ['EUR', 'USD', 'GBP']
+    'main' => 'EUR',
+    'available' => ['EUR','USD', 'GBP']
 ];

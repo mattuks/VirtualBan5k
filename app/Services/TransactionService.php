@@ -9,6 +9,7 @@ use App\Enums\TransactionType;
 use App\Events\TransactionCreated;
 use App\Factories\TransactionFactory;
 use App\Transaction;
+use Illuminate\Support\Collection;
 
 /**
  * Class TransactionService
@@ -42,7 +43,7 @@ class TransactionService extends ConversationService
      * @param TransactionStatus $transactionStatus
      * @return bool
      */
-    public function changeStatusAndSave(Transaction $transaction, TransactionStatus $transactionStatus)
+    public function changeStatusAndSave(Transaction $transaction, TransactionStatus $transactionStatus): bool
     {
         $transaction = $transaction->setStatus($transactionStatus)->save();
 
@@ -50,15 +51,15 @@ class TransactionService extends ConversationService
     }
 
     /**
-     * @param $transactions
+     * @param Collection $transactions
      */
-    public function setTransactionsStatusesToSuccess($transactions): void
+    public function setTransactionsStatusesToSuccess(Collection $transactions): void
     {
+        /** @var Transaction $transaction */
         foreach ($transactions as $transaction) {
-
-            if ($transaction->getDirection() == '1') {
+            if ($transaction->getDirection()->value === TransactionDirectionType::IN) {
                 $this->changeStatusAndSave($transaction, new TransactionStatus(TransactionStatus::RECEIVED));
-            } else {
+            } else{
                 $this->changeStatusAndSave($transaction, new TransactionStatus(TransactionStatus::SENT));
             }
         }

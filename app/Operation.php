@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Money\Currency;
-use App\Helpers\SendsAlerts;
 /**
  * Class Operation
  * @package App
