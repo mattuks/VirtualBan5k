@@ -44,6 +44,13 @@ class User extends Authenticatable
     /**
      * @return HasMany
      */
+    public function operations(): HasMany
+    {
+        return $this->hasMany(Operation::class);
+    }
+    /**
+     * @return HasMany
+     */
     public function accounts(): HasMany
     {
         return $this->hasMany(Account::class);

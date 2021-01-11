@@ -35,7 +35,6 @@ class UpdateAccountsAmounts
      */
     public function handle($event)
     {
-            $this->accountService->subtractFromAmount(Account::where('uuid', $event->operation->getSenderUUID())->first(), $event->operation->getAmount());
             $this->accountService->addAmountAndConvert(Account::where('uuid', $event->operation->getReceiverUUID())->first(), $event->operation->getAmount());
     }
 }

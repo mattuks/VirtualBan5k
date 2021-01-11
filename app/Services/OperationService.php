@@ -11,6 +11,7 @@ use App\Http\Requests\OperationRequest;
 use App\Jobs\CreateOperations;
 use App\Notifications\OperationCreatedNotification;
 use App\Operation;
+use App\User;
 use Carbon\Carbon;
 use Cknow\Money\Money;
 use Illuminate\Http\RedirectResponse;
@@ -21,8 +22,22 @@ use Money\Currency;
  * Class OperationService
  * @package App\Services
  */
-class OperationService
+class OperationService extends MoneyService
 {
+    /**
+     * @var AccountService
+     */
+    private $accountService;
+
+    /**
+     * OperationService constructor.
+     * @param AccountService $accountService
+     */
+    public function __construct(AccountService $accountService)
+    {
+        $this->accountService = $accountService;
+    }
+
     /**
      * @param array $data
      * @return Operation
@@ -45,6 +60,14 @@ class OperationService
     }
 
     /**
+     * @param $operation
+     */
+    public function sendNotificationAboutOperationStatusToUser($operation)
+    {
+        $user = User::where('id', $operation->getUserId())->first();
+        $user->notify(new OperationCreatedNotification($operation));
+    }
+    /**
      * @param Operation $operation
      * @param OperationStatus $operationStatus
      * @return bool
@@ -58,48 +81,37 @@ class OperationService
 
     /**
      * @param $request
-     * @return RedirectResponse
+     * @return bool
      */
 
-    public function checkAccountFunds($request)
+    private function checkAccountFunds($request)
     {
         if ($request['amount'] * 100 <= intval(Account::where('uuid', $request['sender_uuid'])->first()->getAmount()->getAmount())) {
-            dispatch(new CreateOperations($request->all(), $request->user()))->delay(Carbon::now()->addSeconds(90));
-            return back()->with('success', 'Transaction has been made check for status in the Notification page.');
+            return true;
         } else {
-            return back()->with('failed', 'Insufficient account balance');
+            return false;
         }
     }
-//
-//    /**
-//     * @param OperationRequest $request
-//     */
-//    public static function createOperation(OperationRequest $request): void
-//    {
-//        try {
-//            DB::transaction(function () use ($request) {
-//                $operation = $this->createAndSave([
-//                    'sender_uuid' => $request['sender_uuid'],
-//                    'receiver_uuid' => $request['receiver_uuid'],
-//                    'amount' => new Money($request['amount'] * 100, new Currency($request['currency'])),
-//                    'currency' => new Currency($request['currency']),
-//                    'status' => new OperationStatus(OperationStatus::PENDING),
-//                ]);
-//                $request->user()->notify(new OperationCreatedNotification($operation));
-//                event(new OperationCreated($operation));
-//            });
-//
-//        } catch (\Exception $exception) {
-//            DB::rollBack();
-//            logger($exception->getMessage());
-//            $operation = $this->createAndSave([
-//                'sender_uuid' => $request['sender_uuid'],
-//                'receiver_uuid' => $request['receiver_uuid'],
-//                'amount' => new Money($request['amount'] * 100, new Currency($request['currency'])),
-//                'currency' => new Currency($request['currency']),
-//                'status' => new OperationStatus(OperationStatus::FAILED),
-//            ]);
-//            $request->user()->notify(new OperationCreatedNotification($operation));
-//        };
-//    }
+
+    /**
+     * @param $request
+     * @return RedirectResponse
+     */
+    public function createOperation($request)
+    {
+
+        if (!$this->checkAccountFunds($request)) {
+
+            return back()->with('failed', 'Insufficient account balance');
+
+        } else {
+            $this->createMoney($request['amount'], new Currency($request['currency']));
+
+            $this->accountService->subtractFromAmount(Account::where('id', $request['account_id'])->first(), $this->createMoney($request['amount'], new Currency($request['currency'])));
+
+            dispatch(new CreateOperations($request->all(), $request->user()))->delay(Carbon::now()->addSeconds(10));
+
+            return back()->with('success', 'Transaction has been made check for status in the Notification page.');
+        };
+    }
 }

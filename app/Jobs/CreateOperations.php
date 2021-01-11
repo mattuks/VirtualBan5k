@@ -19,7 +19,7 @@ use Illuminate\Http\Request;
 use Cknow\Money\Money;
 use Money\Currency;
 
-class CreateOperations implements ShouldQueue
+class CreateOperations
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -50,6 +50,8 @@ class CreateOperations implements ShouldQueue
     public function handle()
     {
         $operation = new Operation();
+        $operation->setUserId($this->user->getId());
+        $operation->setAccountId($this->operation['account_id']);
         $operation->setSenderUUID($this->operation['sender_uuid']);
         $operation->setReceiverUUID($this->operation['receiver_uuid']);
         $operation->setAmount(new Money($this->operation['amount']*100, new Currency($this->operation['currency'])));

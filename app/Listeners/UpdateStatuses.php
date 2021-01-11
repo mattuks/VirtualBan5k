@@ -4,10 +4,12 @@ namespace App\Listeners;
 
 use App\Enums\OperationStatus;
 use App\Enums\TransactionStatus;
+use App\Notifications\OperationCreatedNotification;
 use App\Operation;
 use App\Services\OperationService;
 use App\Services\TransactionService;
 use App\Transaction;
+use http\Client\Curl\User;
 use function Symfony\Component\String\s;
 
 class UpdateStatuses
@@ -39,6 +41,7 @@ class UpdateStatuses
     public function handle($event)
     {
         $this->transactionService->setTransactionsStatusesToSuccess(Transaction::where('operation_id', $event->operation->getId())->get());
-        $this->operationService->changeStatusAndSave(Operation::where('id',$event->operation->getId())->first(), new OperationStatus(OperationStatus::SUCCESS));
+        $this->operationService->changeStatusAndSave($event->operation, new OperationStatus(OperationStatus::SUCCESS));
+        $this->operationService->sendNotificationAboutOperationStatusToUser($event->operation);
     }
 }

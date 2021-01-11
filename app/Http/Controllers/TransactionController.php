@@ -79,8 +79,7 @@ class TransactionController extends Controller
      */
     public function store(OperationRequest $request)
     {
-
-        $this->operationService->checkAccountFunds($request);
+        $this->operationService->createOperation($request);
 
 
         return redirect()->back()->withInput($request->input());

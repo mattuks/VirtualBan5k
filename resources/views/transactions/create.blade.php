@@ -24,6 +24,7 @@
                     @enderror
                 </div>
                 <input type="hidden" value="{{$account->getCurrency()}}" name="currency" id="currency">
+                <input type="hidden" value="{{$account->getId()}}" name="account_id" id="account_id">
                 <div class="form-group">
                     <label for="amount">Amount</label>
                     <input class="form-control" type="number" id="amount" name="amount" value="{{old('amount')}}">
