@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Money\Currency;
 /**
  * @param int $amount
@@ -23,6 +25,12 @@ function isMainCurrency(string $currency)
     }
 }
 
-function messageUser(string $key ,string $message){
-   return session([$key => $message]);
+/**
+ * @param string $key
+ * @param string $message
+ * @return RedirectResponse
+ */
+function messageUser(string $key ,string $message): RedirectResponse
+{
+  return Redirect::back()->with($key, $message);
 }

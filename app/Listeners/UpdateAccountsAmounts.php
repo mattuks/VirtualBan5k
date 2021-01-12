@@ -7,6 +7,8 @@ use App\Enums\TransactionDirectionType;
 use App\Events\OperationCreated;
 use App\Services\AccountService;
 use App\Services\ConversationService;
+use App\Transaction;
+use Illuminate\Support\Facades\DB;
 
 class UpdateAccountsAmounts
 {
@@ -36,6 +38,15 @@ class UpdateAccountsAmounts
      */
     public function handle(OperationCreated $event)
     {
-        $this->accountService->addAmountAndConvert(Account::where('uuid', $event->operation->getReceiverUUID())->first(), $event->operation->getAmount());
+        try {
+            DB::transaction(function () use ($event) {
+                $this->accountService->subtractFromAmount(Account::where('uuid',
+                    $event->operation->getSenderUUID())->first(), $event->operation->getAmount());
+                $this->accountService->addAmountAndConvert(Account::where('uuid',
+                    $event->operation->getReceiverUUID())->first(), $event->operation->getAmount());
+            });}catch (\Exception $exception){
+            DB::rollBack();
+            logger($exception);
+        }
     }
 }
