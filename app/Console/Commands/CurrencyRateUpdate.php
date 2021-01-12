@@ -11,7 +11,7 @@ class CurrencyRateUpdate extends Command
      *
      * @var string
      */
-    protected $signature = 'update:currency';
+    protected $signature = 'update:currencies';
 
     /**
      * The console command description.
@@ -37,7 +37,7 @@ class CurrencyRateUpdate extends Command
     {
         $currencies = Currency::all();
         foreach ($currencies as $currency){
-           if ($currency->getCurrency()->getCode() === config('currencies.main')){
+           if ($currency->getIsoCode()->getCode() === config('currencies.main')){
                 continue;
            }else{
                $currency->setRate(mt_rand(0.7 * 10, 1.7 * 10) / 10)->save();

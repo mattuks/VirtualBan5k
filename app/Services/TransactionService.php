@@ -6,7 +6,6 @@ namespace App\Services;
 use App\Enums\TransactionDirectionType;
 use App\Enums\TransactionStatus;
 use App\Enums\TransactionType;
-use App\Events\TransactionCreated;
 use App\Factories\TransactionFactory;
 use App\Transaction;
 use Illuminate\Support\Collection;
@@ -15,8 +14,18 @@ use Illuminate\Support\Collection;
  * Class TransactionService
  * @package App\Services
  */
-class TransactionService extends ConversationService
+class TransactionService
 {
+    /**
+     * @var ConversationService
+     */
+    public $conversationService;
+
+    public function __construct(ConversationService $conversationService)
+    {
+        $this->conversationService = $conversationService;
+    }
+
     /**
      * @param array $data
      * @return Transaction
@@ -79,7 +88,7 @@ class TransactionService extends ConversationService
             'status' => new TransactionStatus(TransactionStatus::PENDING),
             'type' => new TransactionType(TransactionType::TRANSFER),
             'direction' => new TransactionDirectionType(TransactionDirectionType::IN),
-            'amount' => $this->convertMoney($event->operation->getAmount(), $account->getCurrency())
+            'amount' => $this->conversationService->convertMoney($event->operation->getAmount(), $account->getCurrency())
         ]);
     }
 

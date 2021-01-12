@@ -17,7 +17,7 @@ class CurrencyFactory
     public static function create(array $data): Currency
     {
         $currency = new Currency();
-        $currency->setCurrency($data['currency']);
+        $currency->setIsoCode($data['iso_code']);
         $currency->setRate($data['rate']);
 
         return $currency;

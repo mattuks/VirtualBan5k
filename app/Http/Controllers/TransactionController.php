@@ -52,16 +52,16 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        return view('transactions.transactions', ['transactions' => Transaction::all()->where('user_id', auth()->id())]);
+        return view('transactions.transactions', ['transactions' => Transaction::where('user_id', auth()->id())->get()]);
     }
 
     /**
-     * @param $id
+     * @param $acccountId
      * @return Application|Factory|View
      */
-    public function show($id)
+    public function show($acccountId)
     {
-        return view('transactions.show', ['transactions' => Transaction::all()->where('account_id', $id)]);
+        return view('transactions.show', ['transactions' => Transaction::where('account_id', $acccountId)->get()]);
     }
 
     /**
@@ -77,12 +77,11 @@ class TransactionController extends Controller
      * @param OperationRequest $request
      * @return RedirectResponse
      */
-    public function store(OperationRequest $request)
+    public function store(OperationRequest $request): RedirectResponse
     {
         $this->operationService->createOperation($request);
 
-
-        return redirect()->back()->withInput($request->input());
+        return redirect()->back();
     }
 
 

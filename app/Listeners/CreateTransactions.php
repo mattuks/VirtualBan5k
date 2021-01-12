@@ -6,6 +6,7 @@ use App\Account;
 use App\Enums\TransactionDirectionType;
 use App\Enums\TransactionStatus;
 use App\Enums\TransactionType;
+use App\Events\OperationCreated;
 use App\Factories\TransactionFactory;
 use App\Services\AccountService;
 use App\Services\ConversationService;
@@ -48,11 +49,11 @@ class CreateTransactions
     }
 
     /**
-     * @param object $event
+     * @param OperationCreated $event
      */
-    public function handle(object $event)
+    public function handle(OperationCreated $event)
     {
-            try {
+        try {
                 DB::transaction(function () use ($event) {
                 $this->transactionService->createOutTransaction(Account::where('uuid', $event->operation->getSenderUUID())
                     ->first(), $event);

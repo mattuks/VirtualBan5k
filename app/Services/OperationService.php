@@ -4,6 +4,7 @@
 namespace App\Services;
 
 use App\Account;
+use App\Currency;
 use App\Enums\OperationStatus;
 use App\Factories\OperationFactory;
 use App\Http\Requests\OperationRequest;
@@ -63,17 +64,16 @@ class OperationService extends ConversationService
     /**
      * @param $operation
      */
-    public function sendNotificationAboutOperationStatusToUser($operation)
+    public function notifyOperationUser($operation): void
     {
-        $user = User::where('id', $operation->getUserId())->first();
-        $user->notify(new OperationStatusNotification($operation));
+        $operation->user()->first()->notify(new OperationStatusNotification($operation));
     }
     /**
      * @param Operation $operation
      * @param OperationStatus $operationStatus
      * @return bool
      */
-    public function changeStatusAndSave(Operation $operation, OperationStatus $operationStatus)
+    public function changeStatusAndSave(Operation $operation, OperationStatus $operationStatus):bool
     {
         $operation = $operation->setStatus($operationStatus)->save();
 
@@ -84,7 +84,7 @@ class OperationService extends ConversationService
      * @param OperationRequest $request
      * @return bool
      */
-    private function checkAccountFunds(OperationRequest $request)
+    private function checkAccountFunds(OperationRequest $request): bool
     {
         return parseToCents($request->input('amount')) <= intval(Account::where('uuid', $request['sender_uuid'])
             ->first()->getAmount()->getAmount());
@@ -92,22 +92,19 @@ class OperationService extends ConversationService
 
     /**
      * @param OperationRequest $request
-     * @return RedirectResponse
      */
-    public function createOperation(OperationRequest $request): RedirectResponse
+    public function createOperation(OperationRequest $request): void
     {
 
         if (!$this->checkAccountFunds($request)) {
-
-            return back()->with('failed', 'Insufficient account balance');
-
+            messageUser('failed', 'Insufficient account balance');
         } else {
             $this->accountService->subtractFromAmount(Account::where('id', $request['account_id'])->first(),
                 \money(parseToCents($request->input('amount')), $request->input('currency')));
 
             dispatch(new CreateOperations($request->all(), $request->user()));
 
-            return back()->with('success', 'Transaction has been made check for status in the Notification page.');
+            messageUser('success', 'Transaction has been made check for status in the Notification page.');
         };
     }
 }

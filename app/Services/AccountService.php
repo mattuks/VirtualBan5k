@@ -49,8 +49,9 @@ class AccountService extends ConversationService
     /**
      * @param Account $account
      * @param Money $money
+     * @return Account
      */
-    public function addToAmount(Account $account, Money $money)
+    public function addToAmount(Account $account, Money $money): Account
     {
         return $this->addAmountAndSave($account,$account->getAmount()->add($money));
     }
@@ -59,7 +60,7 @@ class AccountService extends ConversationService
      * @param Account $account
      * @param Money $money
      */
-    public function subtractFromAmount(Account $account, Money $money)
+    public function subtractFromAmount(Account $account, Money $money): void
     {
         $this->addAmountAndSave($account, $account->getAmount()->subtract($money));
     }
@@ -68,7 +69,8 @@ class AccountService extends ConversationService
      * @param Account $account
      * @param Money $money
      */
-    public function addAmountAndConvert(Account $account, Money $money){
+    public function addAmountAndConvert(Account $account, Money $money): void
+    {
         if ($account->getAmount()->isSameCurrency($money)){
             $this->addToAmount($account,$money);
         }else{

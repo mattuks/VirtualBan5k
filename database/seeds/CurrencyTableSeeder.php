@@ -12,9 +12,9 @@ class CurrencyTableSeeder extends Seeder
      */
     public function run()
     {
-        foreach (config('currencies.rates') as $currency => $rate){
+        foreach (config('currencies.rates') as $isoCode => $rate){
             CurrencyFactory::create([
-               'currency' => new MoneyCurrency($currency),
+               'iso_code' => new MoneyCurrency($isoCode),
                 'rate' => $rate,
             ])->save();
         }

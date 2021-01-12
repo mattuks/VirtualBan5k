@@ -48,12 +48,12 @@ class AddRegistrationBonus
      * @param AccountCreated $event
      * @return void
      */
-    public function handle(AccountCreated $event)
+    public function handle(AccountCreated $event): void
     {
 
-        DB::transaction(function () use ($event) {
             try {
-                $event->account->save();
+                DB::transaction(function () use ($event) {
+                    $event->account->save();
                 $operation = $this->operationService->createAndSave([
                     'sender_uuid' => 'admin',
                     'receiver_uuid' => $event->account->getUUID(),
@@ -73,15 +73,15 @@ class AddRegistrationBonus
                     'amount' => new Money(100000, $event->account->getCurrency()),
                 ]);
 
-                $this->transactionService->changeStatusAndSave($transaction, new TransactionStatus(TransactionStatus::SENT));
+                $this->transactionService->changeStatusAndSave($transaction, new TransactionStatus(TransactionStatus::RECEIVED));
 
                 $this->accountService->addAmountAndSave($event->account, $transaction->getAmount());
 
-                return back()->with('bonus', 'We added a bonus of 1000EUR for joining us!');
+                messageUser('bonus', 'We added a bonus of 1000EUR for joining us!');
+                });
             } catch (\TypeError $typeError) {
                 DB::rollBack();
                 logger($typeError->getMessage());
             }
-        });
     }
 }

@@ -14,12 +14,13 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Money\Currency;
 
-class CreateOperations implements ShouldQueue
+class CreateOperations
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * @var Operation
+     *
      */
     private $operation;
     /**

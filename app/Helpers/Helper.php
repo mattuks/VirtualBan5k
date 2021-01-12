@@ -1,7 +1,6 @@
 <?php
 
 use Money\Currency;
-
 /**
  * @param int $amount
  * @return float|int
@@ -22,4 +21,8 @@ function isMainCurrency(string $currency)
     }else{
         return false;
     }
+}
+
+function messageUser(string $key ,string $message){
+   return session([$key => $message]);
 }

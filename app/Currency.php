@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Money\Currency as MoneyCurrency;
+use phpDocumentor\Reflection\Types\Mixed_;
 
 class Currency extends Model
 {
@@ -13,18 +14,18 @@ class Currency extends Model
     /**
      * @return MoneyCurrency
      */
-    public function getCurrency(): MoneyCurrency
+    public function getIsoCode(): MoneyCurrency
     {
-        return new MoneyCurrency($this->getAttribute('currency'));
+        return new MoneyCurrency($this->getAttribute('iso_code'));
     }
 
     /**
      * @param MoneyCurrency $currency
      * @return $this
      */
-    public function setCurrency(MoneyCurrency $currency): self
+    public function setIsoCode(MoneyCurrency $currency): self
     {
-        $this->setAttribute('currency', $currency->getCode());
+        $this->setAttribute('iso_code', $currency->getCode());
 
         return $this;
     }
@@ -46,5 +47,14 @@ class Currency extends Model
         $this->setAttribute('rate', $rate);
 
         return $this;
+    }
+
+    /**
+     * @param string $isoCode
+     * @return float
+     */
+    public function getRateByIsoCode(string $isoCode): float
+    {
+        return Currency::where('iso_code', $isoCode)->first()->getRate();
     }
 }
