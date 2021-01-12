@@ -12,7 +12,6 @@
                     <th scope="col">Receiver/Sender Account</th>
                     <th scope="col">Amount</th>
                     <th scope="col">Status</th>
-                    <th scope="col">Direction</th>
                 </tr>
                 </thead>
                 <tbody class="text-center">
@@ -23,7 +22,6 @@
                         <td>{{$transaction->operation->getSenderUUID()}}</td>
                         <td>{{$transaction->getAmount()}}</td>
                         <td>{{$transaction->getStatus()->key}}</td>
-                        <td>{{$transaction->getDirection()->key}}</td>
                     </tr>
                 @endforeach
                 </tbody>

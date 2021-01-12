@@ -59,6 +59,10 @@
                             <a class="nav-link pl-0 " href="{{route('all-transactions')}}"><i class="fas fa-history"></i><span
                                     class="d-none d-md-inline pl-2">All Transactions</span></a>
                         </li>
+                        <li class="nav-item pl-2">
+                            <a class="nav-link pl-0 " href="{{route('notifications')}}"><i class="fas fa-history"></i><span
+                                    class="d-none d-md-inline pl-2">Notifications</span></a>
+                        </li>
 
                     </ul>
                 </div>

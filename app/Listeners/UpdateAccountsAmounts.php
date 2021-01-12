@@ -3,6 +3,8 @@
 namespace App\Listeners;
 
 use App\Account;
+use App\Enums\TransactionDirectionType;
+use App\Events\OperationCreated;
 use App\Services\AccountService;
 use App\Services\ConversationService;
 
@@ -32,9 +34,8 @@ class UpdateAccountsAmounts
     /**
      * @param $event
      */
-    public function handle($event)
+    public function handle(OperationCreated $event)
     {
-            $this->accountService->subtractFromAmount(Account::where('uuid', $event->operation->getSenderUUID())->first(), $event->operation->getAmount());
-            $this->accountService->addAmountAndConvert(Account::where('uuid', $event->operation->getReceiverUUID())->first(), $event->operation->getAmount());
+        $this->accountService->addAmountAndConvert(Account::where('uuid', $event->operation->getReceiverUUID())->first(), $event->operation->getAmount());
     }
 }

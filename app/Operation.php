@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Money\Currency;
-
 /**
  * Class Operation
  * @package App
@@ -31,6 +30,13 @@ class Operation extends Model
         return $this->hasMany(Transaction::class);
     }
 
+    /**
+     * @return BelongsTo
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
     /**
      * @return int
      */
@@ -133,4 +139,43 @@ class Operation extends Model
 
         return $this;
     }
+
+    /**
+     * @return int
+     */
+    public function getAccountId(): int
+    {
+        return $this->getAttribute('account_id');
+    }
+
+    /**
+     * @param int $account_id
+     * @return $this
+     */
+    public function setAccountId(int $account_id): self
+    {
+        $this->setAttribute('account_id', $account_id);
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getUserId(): int
+    {
+        return $this->getAttribute('user_id');
+    }
+
+    /**
+     * @param int $user_id
+     * @return $this
+     */
+    public function setUserId(int $user_id): self
+    {
+        $this->setAttribute('user_id', $user_id);
+
+        return $this;
+    }
+
 }

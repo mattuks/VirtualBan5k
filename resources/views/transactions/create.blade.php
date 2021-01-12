@@ -6,15 +6,7 @@
             <h2 class="text-center">Send Money</h2>
         </div>
         <div class="card-body pt-3">
-            @if(session('failed'))
-                <div class="alert alert-danger text-center">
-                    {{session('failed')}}
-                </div>
-            @elseif(session('success'))
-                <div class="alert alert-success text-center">
-                    {{session('success')}}
-                </div>
-            @endif
+         @include('inc.alerts')
             <form class="text-left" method="post" action="{{route('transaction-store')}}">
                 @csrf
                 <div class="input-group mb-3">
@@ -32,6 +24,7 @@
                     @enderror
                 </div>
                 <input type="hidden" value="{{$account->getCurrency()}}" name="currency" id="currency">
+                <input type="hidden" value="{{$account->getId()}}" name="account_id" id="account_id">
                 <div class="form-group">
                     <label for="amount">Amount</label>
                     <input class="form-control" type="number" id="amount" name="amount" value="{{old('amount')}}">

@@ -5,7 +5,7 @@ namespace App\Enums;
 use BenSampo\Enum\Enum;
 
 /**
- * Class OperationStatus
+ * Class OperationStatusNotification
  * @package App\Enums
  */
 final class OperationStatus extends Enum

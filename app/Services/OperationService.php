@@ -4,20 +4,42 @@
 namespace App\Services;
 
 use App\Account;
+use App\Currency;
 use App\Enums\OperationStatus;
-use App\Events\OperationCreated;
 use App\Factories\OperationFactory;
+use App\Http\Requests\OperationRequest;
+use App\Jobs\CreateOperations;
+use App\Notifications\OperationStatusNotification;
 use App\Operation;
-use Illuminate\Contracts\Foundation\Application;
+use App\User;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
 
 /**
  * Class OperationService
  * @package App\Services
  */
-class OperationService
+class OperationService extends ConversationService
 {
+    /**
+     * @var CurrencyService
+     */
+    public $currencyService;
+    /**
+     * @var AccountService
+     */
+    private $accountService;
+
+    /**
+     * OperationService constructor.
+     * @param AccountService $accountService
+     * @param CurrencyService $currencyService
+     */
+    public function __construct(AccountService $accountService, CurrencyService $currencyService)
+    {
+        $this->accountService = $accountService;
+        $this->currencyService = $currencyService;
+    }
+
     /**
      * @param array $data
      * @return Operation
@@ -40,11 +62,18 @@ class OperationService
     }
 
     /**
+     * @param $operation
+     */
+    public function notifyOperationUser($operation): void
+    {
+        $operation->user()->first()->notify(new OperationStatusNotification($operation));
+    }
+    /**
      * @param Operation $operation
      * @param OperationStatus $operationStatus
      * @return bool
      */
-    public function changeStatusAndSave(Operation $operation, OperationStatus $operationStatus)
+    public function changeStatusAndSave(Operation $operation, OperationStatus $operationStatus):bool
     {
         $operation = $operation->setStatus($operationStatus)->save();
 
@@ -52,17 +81,30 @@ class OperationService
     }
 
     /**
-     * @param Operation $operation
-     * @param $request
+     * @param OperationRequest $request
+     * @return bool
      */
-    public function checkAccountAmount(Operation $operation, $request){
-        if (Account::where('uuid',$request['sender_uuid'])->first()->getAmount()->lessThanOrEqual($operation->getAmount())){
-            $this->changeStatusAndSave($operation, new OperationStatus(OperationStatus::FAILED));
-            return back()->with('failed', 'Insufficient account balance');
-        }else{
-            $operation->save();
-            event(new OperationCreated($operation));
-            return back()->with('success', 'Money has been sent!');
-        }
+    private function checkAccountFunds(OperationRequest $request): bool
+    {
+        return parseToCents($request->input('amount')) <= intval(Account::where('uuid', $request['sender_uuid'])
+            ->first()->getAmount()->getAmount());
+    }
+
+    /**
+     * @param OperationRequest $request
+     */
+    public function createOperation(OperationRequest $request): void
+    {
+
+        if (!$this->checkAccountFunds($request)) {
+            messageUser('failed', 'Insufficient account balance');
+        } else {
+            $this->accountService->subtractFromAmount(Account::where('id', $request['account_id'])->first(),
+                \money(parseToCents($request->input('amount')), $request->input('currency')));
+
+            dispatch(new CreateOperations($request->all(), $request->user()));
+
+            messageUser('success', 'Transaction has been made check for status in the Notification page.');
+        };
     }
 }

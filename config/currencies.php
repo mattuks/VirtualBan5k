@@ -6,5 +6,6 @@ return [
         'USD' => 1.21,
         'GBP' => 0.90,
     ],
-    'available' => ['EUR', 'USD', 'GBP']
+    'main' => 'EUR',
+    'available' => ['EUR','USD', 'GBP']
 ];
