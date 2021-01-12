@@ -99,9 +99,6 @@ class OperationService extends ConversationService
         if (!$this->checkAccountFunds($request)) {
             messageUser('failed', 'Insufficient account balance');
         } else {
-            $this->accountService->subtractFromAmount(Account::where('id', $request['account_id'])->first(),
-                \money(parseToCents($request->input('amount')), $request->input('currency')));
-
             dispatch(new CreateOperations($request->all(), $request->user()));
 
             messageUser('success', 'Transaction has been made check for status in the Notification page.');

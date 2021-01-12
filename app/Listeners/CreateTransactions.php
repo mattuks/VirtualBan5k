@@ -60,7 +60,6 @@ class CreateTransactions
                 $this->transactionService->createInTransaction(Account::where('uuid', $event->operation->getReceiverUUID())
                     ->first(), $event);
                 });
-
             } catch (\TypeError $typeError) {
                 DB::rollBack();
                 logger($typeError->getMessage());

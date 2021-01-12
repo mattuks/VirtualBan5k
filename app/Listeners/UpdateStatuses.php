@@ -11,6 +11,8 @@ use App\Services\OperationService;
 use App\Services\TransactionService;
 use App\Transaction;
 use http\Client\Curl\User;
+use Illuminate\Support\Facades\DB;
+
 use function Symfony\Component\String\s;
 
 class UpdateStatuses
@@ -41,8 +43,17 @@ class UpdateStatuses
      */
     public function handle(OperationCreated $event)
     {
-        $this->transactionService->setTransactionsStatusesToSuccess(Transaction::where('operation_id', $event->operation->getId())->get());
-        $this->operationService->changeStatusAndSave($event->operation, new OperationStatus(OperationStatus::SUCCESS));
-        $this->operationService->notifyOperationUser($event->operation);
+        try {
+            DB::transaction(function () use ($event) {
+                $this->transactionService->setTransactionsStatusesToSuccess(Transaction::where('operation_id',
+                    $event->operation->getId())->get());
+                $this->operationService->changeStatusAndSave($event->operation,
+                    new OperationStatus(OperationStatus::SUCCESS));
+                $this->operationService->notifyOperationUser($event->operation);
+            });
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            logger($exception);
+        }
     }
 }
